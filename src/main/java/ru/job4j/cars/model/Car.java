@@ -4,6 +4,8 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
+@Table(name = "car")
 public class Car {
 
     @Id
@@ -20,5 +22,8 @@ public class Car {
             inverseJoinColumns = {
                     @JoinColumn(name = "car_id", nullable = false, updatable = false)})
     private Set<Driver> drivers = new HashSet<>();
+
+    private String name;
+    private String body;
 
 }
