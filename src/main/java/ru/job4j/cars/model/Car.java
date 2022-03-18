@@ -1,9 +1,7 @@
 package ru.job4j.cars.model;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "car")
@@ -16,13 +14,6 @@ public class Car {
     @ManyToOne
     @JoinColumn(name = "engine_id", foreignKey = @ForeignKey(name = "ENGINE_ID_FK"))
     private Engine engine;
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "history_owner", joinColumns =
-            {@JoinColumn(name = "driver_id", nullable = false, updatable = false)},
-            inverseJoinColumns =
-                    {@JoinColumn(name = "car_id", nullable = false, updatable = false)})
-    private Set<Driver> drivers = new HashSet<>();
 
     private String name;
     private String body;
@@ -41,14 +32,6 @@ public class Car {
 
     public void setEngine(Engine engine) {
         this.engine = engine;
-    }
-
-    public Set<Driver> getDrivers() {
-        return drivers;
-    }
-
-    public void setDrivers(Set<Driver> drivers) {
-        this.drivers = drivers;
     }
 
     public String getName() {
@@ -77,13 +60,12 @@ public class Car {
         }
         Car car = (Car) o;
         return id == car.id && Objects.equals(engine, car.engine)
-                && Objects.equals(drivers, car.drivers)
                 && Objects.equals(name, car.name) && Objects.equals(body, car.body);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, engine, drivers, name, body);
+        return Objects.hash(id, engine, name, body);
     }
 
     @Override

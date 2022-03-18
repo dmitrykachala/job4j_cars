@@ -2,7 +2,9 @@ package ru.job4j.cars.model;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "ad")
@@ -18,13 +20,16 @@ public class Ad {
     private String description;
     private String pictureLink;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "car_id")
     private Car car;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<Category> categories = new HashSet<>();
 
     private boolean sold;
 
@@ -84,6 +89,18 @@ public class Ad {
         this.sold = sold;
     }
 
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
+
+    public void addCategory(Category category) {
+        this.categories.add(category);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -96,7 +113,8 @@ public class Ad {
         return id == ad.id && sold == ad.sold && Objects.equals(created, ad.created)
                 && Objects.equals(description, ad.description)
                 && Objects.equals(pictureLink, ad.pictureLink)
-                && Objects.equals(car, ad.car) && Objects.equals(user, ad.user);
+                && Objects.equals(car, ad.car) && Objects.equals(user, ad.user)
+                && Objects.equals(categories, ad.categories);
     }
 
     @Override
