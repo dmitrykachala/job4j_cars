@@ -1,17 +1,12 @@
 package ru.job4j.cars.repository;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 import ru.job4j.cars.model.Ad;
 import ru.job4j.cars.model.Car;
 import ru.job4j.cars.model.Category;
 import ru.job4j.cars.model.Engine;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,14 +15,8 @@ import java.util.function.Function;
 
 public class AdRepository {
 
-    private final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-            .configure().build();
-    private final SessionFactory sf;
-
     public AdRepository() {
-        sf = new MetadataSources(registry)
-                .buildMetadata()
-                .buildSessionFactory();
+
     }
 
     private static class Holder {
@@ -50,7 +39,7 @@ public class AdRepository {
     public void update(int id) {
 
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             session.beginTransaction();
 
             String hql = "update ru.job4j.cars.model.Ad SET sold = :sold where id = :id";
@@ -73,7 +62,7 @@ public class AdRepository {
         Collection<Ad> rsl = null;
 
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             rsl = session.createQuery(
                     "select distinct a from Ad a "
                             + "join fetch a.car c "
@@ -84,8 +73,6 @@ public class AdRepository {
             session.close();
         }  catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            StandardServiceRegistryBuilder.destroy(registry);
         }
 
         return rsl;
@@ -95,7 +82,7 @@ public class AdRepository {
         Ad rsl = null;
 
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             rsl = session.createQuery(
                     "select distinct a from Ad a "
                             + "where a.id =:id ", Ad.class
@@ -103,8 +90,6 @@ public class AdRepository {
             session.close();
         }  catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            StandardServiceRegistryBuilder.destroy(registry);
         }
 
         return rsl;
@@ -114,7 +99,7 @@ public class AdRepository {
         Collection<Ad> rsl = null;
 
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             rsl = session.createQuery(
                             "select distinct a from Ad a "
                                     + "join fetch a.car c "
@@ -123,8 +108,6 @@ public class AdRepository {
             session.close();
         }  catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            StandardServiceRegistryBuilder.destroy(registry);
         }
 
         return rsl;
@@ -134,7 +117,7 @@ public class AdRepository {
         Collection<Ad> rsl = null;
 
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             rsl = session.createQuery(
                     "select distinct a from Ad a "
                             + "join fetch a.car c "
@@ -144,15 +127,13 @@ public class AdRepository {
             session.close();
         }  catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            StandardServiceRegistryBuilder.destroy(registry);
         }
 
         return rsl;
     }
 
     public void addNewAd(Ad ad, String[] ids, int carId) {
-        try (Session session = sf.openSession()) {
+        try (Session session = Repository.SESSION_FACTORY.openSession()) {
             session.beginTransaction();
 
             for (String id : ids) {
@@ -165,26 +146,26 @@ public class AdRepository {
 
             session.getTransaction().commit();
         } catch (Exception e) {
-            sf.getCurrentSession().getTransaction().rollback();
+            Repository.SESSION_FACTORY.getCurrentSession().getTransaction().rollback();
         }
     }
 
     public List<Category> allCategories() {
         List<Category> rsl = new ArrayList<>();
-        try (Session session = sf.openSession()) {
+        try (Session session = Repository.SESSION_FACTORY.openSession()) {
             session.beginTransaction();
 
             rsl = session.createQuery("select c from Category c", Category.class).list();
 
             session.getTransaction().commit();
         } catch (Exception e) {
-            sf.getCurrentSession().getTransaction().rollback();
+            Repository.SESSION_FACTORY.getCurrentSession().getTransaction().rollback();
         }
         return rsl;
     }
 
     private <T> T tx(final Function<Session, T> command) {
-        final Session session = sf.openSession();
+        final Session session = Repository.SESSION_FACTORY.openSession();
         final Transaction tx = session.beginTransaction();
         try {
             T rsl = command.apply(session);
@@ -215,25 +196,5 @@ public class AdRepository {
         cr.add(car);
 
         System.out.println(cr.findCarById(4));
-
-        /*cr.add(new Car().se);*/
-
-        /*System.out.println("Categories");
-
-        for (Category str : ar.allCategories()) {
-            System.out.println(str);
-        }
-
-        System.out.println("All");
-        for (Ad str : ar.findAll()) {
-            System.out.println(str);
-        }
-
-        System.out.println("CAR");
-        System.out.println(ar.findCar("skoda"));*/
-
-        /*System.out.println("By Id");
-        System.out.println(ar.findAdById(1));*/
-
     }
 }

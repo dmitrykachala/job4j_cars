@@ -1,18 +1,10 @@
 package ru.job4j.cars.repository;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 import ru.job4j.cars.model.User;
 
 public class UserRepository {
-    private final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-            .configure().build();
-    private final SessionFactory sf = new MetadataSources(registry)
-            .buildMetadata().buildSessionFactory();
 
     private UserRepository() {
 
@@ -28,7 +20,7 @@ public class UserRepository {
 
     public User add(User user) {
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             session.beginTransaction();
             session.save(user);
             session.getTransaction().commit();
@@ -42,7 +34,7 @@ public class UserRepository {
     public User findUserByEmail(String email) {
 
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             session.beginTransaction();
             Query query = session
                     .createQuery("from ru.job4j.cars.model.User where email = :email");

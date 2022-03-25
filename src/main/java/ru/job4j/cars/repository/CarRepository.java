@@ -1,20 +1,12 @@
 package ru.job4j.cars.repository;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 import ru.job4j.cars.model.Car;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CarRepository {
-    private final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-            .configure().build();
-    private final SessionFactory sf = new MetadataSources(registry)
-            .buildMetadata().buildSessionFactory();
 
     private CarRepository() {
 
@@ -30,7 +22,7 @@ public class CarRepository {
 
     public Car add(Car car) {
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             session.beginTransaction();
             session.save(car);
             session.getTransaction().commit();
@@ -43,14 +35,14 @@ public class CarRepository {
 
     public List<Car> findAll() {
         List<Car> rsl = new ArrayList<>();
-        try (Session session = sf.openSession()) {
+        try (Session session = Repository.SESSION_FACTORY.openSession()) {
             session.beginTransaction();
 
             rsl = session.createQuery("select c from Car c", Car.class).list();
 
             session.getTransaction().commit();
         } catch (Exception e) {
-            sf.getCurrentSession().getTransaction().rollback();
+            Repository.SESSION_FACTORY.getCurrentSession().getTransaction().rollback();
         }
         return rsl;
     }
@@ -58,7 +50,7 @@ public class CarRepository {
     public Car findCarByName(String name) {
 
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             session.beginTransaction();
             Query query = session
                     .createQuery("from ru.job4j.cars.model.Car where name = :name");
@@ -77,7 +69,7 @@ public class CarRepository {
     public Car findCarById(int id) {
 
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             session.beginTransaction();
             Query query = session
                     .createQuery("from ru.job4j.cars.model.Car where id = :id");

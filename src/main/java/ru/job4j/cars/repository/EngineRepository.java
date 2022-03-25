@@ -1,10 +1,6 @@
 package ru.job4j.cars.repository;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 import ru.job4j.cars.model.Engine;
 
@@ -12,10 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EngineRepository {
-    private final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-            .configure().build();
-    private final SessionFactory sf = new MetadataSources(registry)
-            .buildMetadata().buildSessionFactory();
 
     private EngineRepository() {
 
@@ -31,7 +23,7 @@ public class EngineRepository {
 
     public Engine add(Engine engine) {
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             session.beginTransaction();
             session.save(engine);
             session.getTransaction().commit();
@@ -44,14 +36,14 @@ public class EngineRepository {
 
     public List<Engine> findAll() {
         List<Engine> rsl = new ArrayList<>();
-        try (Session session = sf.openSession()) {
+        try (Session session = Repository.SESSION_FACTORY.openSession()) {
             session.beginTransaction();
 
             rsl = session.createQuery("select e from Engine e", Engine.class).list();
 
             session.getTransaction().commit();
         } catch (Exception e) {
-            sf.getCurrentSession().getTransaction().rollback();
+            Repository.SESSION_FACTORY.getCurrentSession().getTransaction().rollback();
         }
         return rsl;
     }
@@ -59,7 +51,7 @@ public class EngineRepository {
     public Engine findEngineById(int id) {
 
         try {
-            Session session = sf.openSession();
+            Session session = Repository.SESSION_FACTORY.openSession();
             session.beginTransaction();
             Query query = session
                     .createQuery("from ru.job4j.cars.model.Engine where id = :id");
